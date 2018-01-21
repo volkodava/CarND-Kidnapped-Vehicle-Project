@@ -123,17 +123,24 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       const double x_obs = particles[i].x + cos(particles[i].theta) * observations[j].x - sin(particles[i].theta) * observations[j].y;
       const double y_obs = particles[i].y + sin(particles[i].theta) * observations[j].x + cos(particles[i].theta) * observations[j].y;
 
+      double min_dist = DBL_MAX;
+      int min_index = -1;
+
       const std::vector<Map::single_landmark_s> landmark_list = map_landmarks.landmark_list;
-      std::vector<double> landmark_dist_list(landmark_list.size(), DBL_MAX);
+
       for (int k = 0; k < landmark_list.size(); ++k) {
         Map::single_landmark_s landmark = landmark_list[k];
         const double landmark_dist = dist(particles[i].x, particles[i].y, landmark.x_f, landmark.y_f);
+
         if (landmark_dist <= sensor_range) {
-          landmark_dist_list[k] = dist(x_obs, y_obs, landmark.x_f, landmark.y_f);
+          const double cur_dist = dist(x_obs, y_obs, landmark.x_f, landmark.y_f);
+
+          if (cur_dist < min_dist) {
+            min_dist = cur_dist;
+            min_index = k;
+          }
         }
       }
-
-      const int min_index = *min_element(landmark_dist_list.begin(), landmark_dist_list.end());
 
       const float mu_x = landmark_list[min_index].x_f;
       const float mu_y = landmark_list[min_index].y_f;
