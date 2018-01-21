@@ -115,6 +115,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
   // calculate normalization term
   const double gauss_norm = 1 / (2 * M_PI * sig_x * sig_y);
+  const double sig_x_denom = 2 * pow(sig_x, 2);
+  const double sig_y_denom = 2 * pow(sig_y, 2);
 
   for (int i = 0; i < num_particles; ++i) {
     double mgp = 1.0;
@@ -146,7 +148,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       const float mu_y = landmark_list[min_index].y_f;
 
       // calculate exponent
-      const double exponent = pow(x_obs - mu_x, 2) / (2 * pow(sig_x, 2)) + pow(y_obs - mu_y, 2) / (2 * pow(sig_y, 2));
+      const double exponent = pow(x_obs - mu_x, 2) / sig_x_denom + pow(y_obs - mu_y, 2) / sig_y_denom;
 
       // calculate weight using normalization terms and exponent
       mgp *= (gauss_norm * exp(-exponent));
