@@ -40,12 +40,17 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
   // Initialize particles from the Normal (Gaussian) distribution
   for (int i = 0; i < num_particles; ++i) {
-    particles[i].id = i;
-    particles[i].x = dist_x(gen);
-    particles[i].y = dist_y(gen);
-    particles[i].theta = dist_theta(gen);
-    particles[i].weight = 1.0f;
+    Particle p;
+    p.id = i;
+    p.x = dist_x(gen);
+    p.y = dist_y(gen);
+    p.theta = dist_theta(gen);
+    p.weight = 1.0;
+
+    particles.push_back(p);
   }
+
+  weights.resize(num_particles, 0.0);
 
   is_initialized = true;
 }
@@ -158,7 +163,7 @@ void ParticleFilter::resample() {
   discrete_distribution<int> index(weights.begin(), weights.end());
 
   for (int i = 0; i < num_particles; ++i) {
-    resampled_particles[i] = particles[index(gen)];
+    resampled_particles.push_back(particles[index(gen)]);
   }
 
   particles = resampled_particles;
