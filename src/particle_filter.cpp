@@ -144,14 +144,18 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         }
       }
 
-      const float mu_x = landmark_list[min_index].x_f;
-      const float mu_y = landmark_list[min_index].y_f;
+      if (min_index < 0) {
+        mgp = 0.0;
+      } else {
+        const float mu_x = landmark_list[min_index].x_f;
+        const float mu_y = landmark_list[min_index].y_f;
 
-      // calculate exponent
-      const double exponent = pow(x_obs - mu_x, 2) / sig_x_denom + pow(y_obs - mu_y, 2) / sig_y_denom;
+        // calculate exponent
+        const double exponent = pow(x_obs - mu_x, 2) / sig_x_denom + pow(y_obs - mu_y, 2) / sig_y_denom;
 
-      // calculate weight using normalization terms and exponent
-      mgp *= (gauss_norm * exp(-exponent));
+        // calculate weight using normalization terms and exponent
+        mgp *= (gauss_norm * exp(-exponent));
+      }
     }
 
     particles[i].weight = mgp;
@@ -175,7 +179,7 @@ void ParticleFilter::resample() {
     resampled_particles.push_back(particles[index(gen)]);
   }
 
-  particles = resampled_particles;
+  particles = move(resampled_particles);
 }
 
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
